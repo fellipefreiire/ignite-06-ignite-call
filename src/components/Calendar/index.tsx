@@ -45,12 +45,12 @@ export function Calendar({ selectedDate, onDateSelected }: CalendarProps) {
     setCurrentDate(nextMonthDate)
   }
 
-  const username = String(router.query.username)
-
   const shortWeekDays = getWeekDays({ short: true })
 
   const currentMonth = currentDate.format('MMMM')
   const currentYear = currentDate.format('YYYY')
+
+  const username = String(router.query.username)
 
   const { data: blockedDates } = useQuery<BlockedDates>(
     ['blocked-dates', currentDate.get('year'), currentDate.get('month')],
@@ -58,18 +58,21 @@ export function Calendar({ selectedDate, onDateSelected }: CalendarProps) {
       const response = await api.get(`/users/${username}/blocked-dates`, {
         params: {
           year: currentDate.get('year'),
-          month: currentDate.get('month'),
+          month: currentDate.get('month') + 1,
         },
       })
 
       return response.data
     },
-    {
-      enabled: !!selectedDate,
-    },
   )
 
   const calendarWeeks = useMemo(() => {
+    if (!blockedDates) {
+      return []
+    }
+
+    console.log(blockedDates)
+
     const daysInMonthArray = Array.from({
       length: currentDate.daysInMonth(),
     }).map((_, i) => {
@@ -107,7 +110,7 @@ export function Calendar({ selectedDate, onDateSelected }: CalendarProps) {
           date,
           disabled:
             date.endOf('day').isBefore(new Date()) ||
-            blockedDates?.blockedWeekDays.includes(date.get('day')),
+            blockedDates.blockedWeekDays.includes(date.get('day')),
         }
       }),
       ...nextMonthFillArray.map((date) => {

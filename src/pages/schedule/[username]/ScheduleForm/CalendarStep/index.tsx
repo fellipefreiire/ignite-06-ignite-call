@@ -13,7 +13,6 @@ interface Availability {
 
 export function CalendarStep() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
-  // const [availability, setAvailability] = useState<Availability | null>(null)
 
   const router = useRouter()
 
@@ -34,7 +33,7 @@ export function CalendarStep() {
     async () => {
       const response = await api.get(`/users/${username}/availability`, {
         params: {
-          date: dayjs(selectedDate).format('YYYY-MM-DD'),
+          date: selectedDateWithoutTime,
         },
       })
 
